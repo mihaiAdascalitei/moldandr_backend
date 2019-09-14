@@ -22,11 +22,12 @@ def getUser(name, password):
     global conn
     if conn is not None:
         if conn.is_connected():
-            statement = "select * from users;"
+            statement = "select * from users where name = %s and password = %s;"
+            values = (name, password)
             cursor = conn.cursor()
-            cursor.execute(statement)
-            user = parse_single_response_as_json (cursor.fetchall(), cursor.description)
-            return user
+            cursor.execute(statement, values)
+            user = parse_response_as_array_json_as_string (cursor.fetchall(), cursor.description)
+            return json.dumps(user[0])
 
 def getUserById(id):
     global conn
@@ -49,6 +50,18 @@ def login(name, password):
                 return user
             return None
         return None    
+
+def register(name, password):
+    if conn is not None:
+        if conn.is_connected():
+            statement = "insert into users(name, password, type, avatar_url, job_title, rating) values (%s, %s, %s, %s, %s, %s);"
+            values = (name, password, "TRAINEE", "", "Python Developer", 4.0)
+            cursor = conn.cursor()
+            cursor.execute(statement, values)
+            conn.commit()
+            cursor.close()
+        return getUser(name, password)
+
 
 def getCategories():
     global conn

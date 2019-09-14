@@ -21,10 +21,21 @@ def login():
 	data = request.get_json()
 	name = data['name']
 	password = data['password']
-	users = db.login(name, password)
-	if not isJsonObjEmpty(users):
+	user = db.login(name, password)
+	if not user:
 		return "No user found", 404
-	return users
+	return user
+
+
+@app.route('/register', methods=['POST'])
+def register():
+	data = request.get_json()
+	name = data['name']
+	password = data['password']
+	user = db.register(name, password)
+	if not user:
+		return "Registration failed", 401
+	return user
 	
 @app.route('/get-home', methods=['GET'])
 def get_courses_home():
@@ -66,6 +77,6 @@ def isJsonArrayEmpty(data):
 	return data == []
 
 if __name__ == '__main__':
-    app.run(host="YOUR_HOST",port="YOUR_PORT") 
+    app.run(host="YOUR_API",port="YOUR_PORT") 
 
 
